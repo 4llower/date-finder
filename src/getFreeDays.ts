@@ -2,54 +2,54 @@ import moment from 'moment'
 import * as _ from 'lodash'
 
 export const getFreeDays = ({ start, end, minTime, scheduler }: InputData) => {
-  const daysSummary = moment(end).diff(moment(start), 'days')
-  console.log(daysSummary)
+  const daysSummary = moment(end).startOf('days').diff(moment(start).startOf('days'), 'days') + 1
+  const scanLine = new Array(daysSummary + 1).fill(0)
+  const supposedDays: number[] = []
 
-  const scanLine = new Array(daysSummary).fill(0)
+  scheduler.push({
+    s: moment(start).startOf('days').format('YYYY-MM-DD HH:mm:ss'),
+    e: start,
+  })
+
+  scheduler.push({
+    s: end,
+    e: moment(end).startOf('days').add(23, 'hours').format('YYYY-MM-DD HH:mm:ss'),
+  })
 
   scheduler.forEach(({ s, e }) => {
-    const startDay = moment(s).diff(start, 'days')
+    const startDay = moment(s).diff(moment(start).startOf('days'), 'days')
     scanLine[startDay]++
-    const endDay = moment(e).diff(start, 'days')
-    scanLine[endDay]--
+    const endDay = moment(e).diff(moment(start).startOf('days'), 'days')
+    scanLine[endDay + 1]--
+    supposedDays.push(startDay)
+    supposedDays.push(endDay)
   })
+
+  supposedDays.sort((a: number, b: number) => (a < b ? -1 : 1))
 
   const result: string[] = []
   let sum = 0
 
   for (let day = 0; day < daysSummary; ++day) {
     sum += scanLine[day]
-    if (scanLine[day] === 0 && sum === 0) {
+    if (sum === 0) {
       result.push(moment(start).add(day, 'days').format('YYYY-MM-DD'))
     }
   }
 
-  const supposedDays: number[] = []
-
-  scheduler.forEach(({ s, e }) => {
-    supposedDays.push(moment(s).diff(start, 'days'))
-    supposedDays.push(moment(e).diff(start, 'days'))
-  })
-
-  supposedDays.forEach((day, index) => {
+  _.uniq(supposedDays).forEach((day, index) => {
     const supposedScanLine = new Array(24).fill(0)
     const currentDate = moment(start).add(day, 'days').startOf('day')
-
     let isSupposed = true
-
     scheduler.forEach(({ s, e }) => {
-      if (
-        moment(s).startOf('days').diff(currentDate, 'days') > 0 ||
-        moment(e).startOf('days').diff(currentDate, 'days') < 0 ||
-        !isSupposed
-      ) {
+      const daysStart = moment(s).startOf('days').diff(currentDate, 'days')
+      const daysEnd = moment(e).startOf('days').diff(currentDate, 'days')
+
+      if (daysStart > 0 || daysEnd < 0 || !isSupposed) {
         return
       }
 
-      if (
-        moment(s).startOf('days').diff(currentDate, 'days') < day &&
-        day < moment(e).startOf('days').diff(currentDate, 'days')
-      ) {
+      if (daysStart < day && day < daysEnd) {
         isSupposed = false
         return
       }
@@ -71,12 +71,19 @@ export const getFreeDays = ({ start, end, minTime, scheduler }: InputData) => {
       if (supposedSum > 0 && supposedRange > 0) {
         if (supposedRange >= minTime) {
           result.push(currentDate.format('YYYY-MM-DD'))
-          break
+          return
         }
         supposedRange = 0
       }
     }
+
+    if (supposedRange) {
+      if (supposedRange >= minTime) {
+        result.push(currentDate.format('YYYY-MM-DD'))
+        return
+      }
+    }
   })
 
-  return _.uniq(result)
+  return _.uniq(result.sort())
 }

@@ -4,30 +4,45 @@ export const bruteForceByHour = ({ start, end, minTime, scheduler }: InputData) 
   const hoursSummary = moment(end).diff(moment(start), 'hours')
   const scanLine = new Array(hoursSummary).fill(0)
 
+  scheduler.push({
+    s: moment(start).startOf('days').format('YYYY-MM-DD HH:mm:ss'),
+    e: start,
+  })
+
+  scheduler.push({
+    s: end,
+    e: moment(end).startOf('days').add(23, 'hours').format('YYYY-MM-DD HH:mm:ss'),
+  })
+
   scheduler.forEach(({ s, e }) => {
-    const startHour = moment(s).diff(start, 'hours')
+    const startHour = moment.duration(moment(s).diff(moment(start))).asHours()
     scanLine[startHour]++
-    const endHour = moment(e).diff(start, 'hours')
+    const endHour = moment.duration(moment(e).diff(moment(start))).asHours()
     scanLine[endHour]--
   })
 
   const result: { s: string; e: string }[] = []
   let sum = 0
   let currentRange = 0
+
   for (let hour = 0; hour < hoursSummary; ++hour) {
     sum += scanLine[hour]
+
     if (sum === 0) currentRange++
     if (sum > 0 && currentRange > 0) {
       const startAvailable = moment(start)
         .add(hour - currentRange, 'hours')
         .format('YYYY-MM-DD HH:mm:ss')
 
-      const endAvailable = moment(start).add(hour, 'hours').format('YYYY-MM-DD HH:mm:ss')
+      const endAvailable = moment(start)
+        .add(hour - 1, 'hours')
+        .format('YYYY-MM-DD HH:mm:ss')
 
       result.push({
         s: startAvailable,
         e: endAvailable,
       })
+
       currentRange = 0
     }
   }
