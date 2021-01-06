@@ -397,10 +397,22 @@ const testCases: TestCase[] = [
     },
     expected: ['2020-01-20', '2020-01-21', '2020-01-22', '2020-02-03'],
   },
-  ...generateTests(100),
+  {
+    data: {
+      start: '2020-01-12 12:00:00',
+      end: '2020-01-13 08:00:00',
+      minTime: 4,
+      scheduler: [
+        { s: '2020-01-12 12:00:00', e: '2020-01-12 16:00:00' },
+        { s: '2020-01-12 12:00:00', e: '2020-01-12 20:00:00' },
+      ],
+    },
+    expected: ['2020-01-12', '2020-01-13'],
+  },
+  ...generateTests(10000),
 ]
 
-// const currentCase = 19
+// const currentCase = 20
 // console.log(
 //   getAnswerForTest(bruteForceByHour(testCases[currentCase].data), testCases[currentCase].data),
 // )

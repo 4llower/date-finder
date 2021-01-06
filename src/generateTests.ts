@@ -10,7 +10,7 @@ export const generateTests = (numberTests: number): { data: InputData }[] => {
     start.add(getRandomInt(1, 23), 'hours')
 
     const end = moment('2020-01-01').startOf('days')
-    end.add(getRandomInt(rand + 1, rand + 20), 'days')
+    end.add(getRandomInt(rand + 6, rand + 20), 'days')
     end.add(getRandomInt(1, 23), 'hours')
 
     const diff = moment(end).diff(start, 'days')
@@ -39,7 +39,7 @@ export const generateTests = (numberTests: number): { data: InputData }[] => {
       data: {
         start: start.format('YYYY-MM-DD HH:mm:ss'),
         end: end.format('YYYY-MM-DD HH:mm:ss'),
-        minTime: getRandomInt(1, 24),
+        minTime: getRandomInt(2, 14),
         scheduler,
       },
     })
