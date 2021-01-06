@@ -161,7 +161,7 @@ const testCases: TestCase[] = [
       '2020-01-20',
     ],
   },
-  ...generateTests(1000),
+  ...generateTests(10000),
 ]
 
 let testBroken = false
@@ -183,7 +183,6 @@ testCases.forEach(({ data, expected }, index) => {
     console.log('Your:')
     console.log(programAnswer)
     console.log('Free ranges:')
-    console.log(bruteForceByHour(data))
     testBroken = true
     return
   }

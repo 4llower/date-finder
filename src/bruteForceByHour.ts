@@ -4,16 +4,6 @@ export const bruteForceByHour = ({ start, end, minTime, scheduler }: InputData) 
   const hoursSummary = moment(end).diff(moment(start), 'hours')
   const scanLine = new Array(hoursSummary).fill(0)
 
-  scheduler.push({
-    s: moment(start).startOf('days').format('YYYY-MM-DD HH:mm:ss'),
-    e: start,
-  })
-
-  scheduler.push({
-    s: end,
-    e: moment(end).startOf('days').add(23, 'hours').format('YYYY-MM-DD HH:mm:ss'),
-  })
-
   scheduler.forEach(({ s, e }) => {
     const startHour = moment.duration(moment(s).diff(moment(start))).asHours()
     scanLine[startHour]++
