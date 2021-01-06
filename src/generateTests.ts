@@ -22,11 +22,12 @@ export const generateTests = (numberTests: number): { data: InputData }[] => {
       const s = moment(start).startOf('days')
 
       s.add(newRand, 'days')
+      const hours = getRandomInt(1, 23)
       s.add(getRandomInt(1, 23), 'hours')
 
       const e = moment(start).startOf('days')
       e.add(getRandomInt(newRand + 1, diff), 'days')
-      e.add(getRandomInt(1, 23), 'hours')
+      e.add(getRandomInt(hours + 1, 23), 'hours')
 
       scheduler.push({
         s: s.format('YYYY-MM-DD HH:mm:ss'),

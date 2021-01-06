@@ -12,10 +12,17 @@ export const getFreeDays = ({ start, end, minTime, scheduler }: InputData) => {
     e: start,
   })
 
-  newScheduler.push({
-    s: end,
-    e: moment(end).startOf('days').add(23, 'hours').format('YYYY-MM-DD HH:mm:ss'),
-  })
+  if (moment(end).hours() >= 1) {
+    newScheduler.push({
+      s: moment(end).subtract(1, 'hours').format('YYYY-MM-DD HH:mm:ss'),
+      e: moment(end).startOf('days').add(23, 'hours').format('YYYY-MM-DD HH:mm:ss'),
+    })
+  } else {
+    newScheduler.push({
+      s: end,
+      e: moment(end).startOf('days').add(23, 'hours').format('YYYY-MM-DD HH:mm:ss'),
+    })
+  }
 
   newScheduler.forEach(({ s, e }) => {
     const startDay = moment(s).diff(moment(start).startOf('days'), 'days')
@@ -50,7 +57,10 @@ export const getFreeDays = ({ start, end, minTime, scheduler }: InputData) => {
         return
       }
 
-      if (daysStart < day && day < daysEnd) {
+      if (
+        moment(s).startOf('days').diff(moment(start).startOf('days'), 'days') < day &&
+        day < moment(e).startOf('days').diff(moment(start).startOf('days'), 'days')
+      ) {
         isSupposed = false
         return
       }
@@ -58,8 +68,8 @@ export const getFreeDays = ({ start, end, minTime, scheduler }: InputData) => {
       const newStart = moment.max([moment(s), moment(currentDate)])
       const newEnd = moment.min([moment(e), moment(currentDate).add(23, 'hours')])
 
-      supposedScanLine[newStart.diff(currentDate, 'hours')]++
-      supposedScanLine[newEnd.diff(currentDate, 'hours')]--
+      supposedScanLine[newStart.hours()]++
+      if (newEnd.hours() < 23) supposedScanLine[newEnd.hours()]--
     })
 
     if (!isSupposed) return
