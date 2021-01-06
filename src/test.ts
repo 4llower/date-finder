@@ -409,7 +409,7 @@ const testCases: TestCase[] = [
     },
     expected: ['2020-01-12', '2020-01-13'],
   },
-  ...generateTests(10000),
+  ...generateTests(100),
 ]
 
 // const currentCase = 20

@@ -10,14 +10,14 @@ export const generateTests = (numberTests: number): { data: InputData }[] => {
     start.add(getRandomInt(1, 23), 'hours')
 
     const end = moment('2020-01-01').startOf('days')
-    end.add(getRandomInt(rand + 6, rand + 20), 'days')
+    end.add(getRandomInt(rand + 6, rand + 100), 'days')
     end.add(getRandomInt(1, 23), 'hours')
 
     const diff = moment(end).diff(start, 'days')
 
     const scheduler = []
 
-    for (let j = 0; j < 5; ++j) {
+    for (let j = 0; j < 100; ++j) {
       const newRand = getRandomInt(2, diff)
       const s = moment(start).startOf('days')
 
