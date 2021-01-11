@@ -5,7 +5,22 @@ export const bruteForceByHour = ({ start, end, minTime, scheduler }: InputData) 
   const hoursSummary = moment(end).diff(moment(start), 'hours')
   const scanLine = new Array(hoursSummary).fill(0)
 
-  scheduler.forEach(({ s, e }) => {
+  const newScheduler = [
+    ...scheduler
+      .filter(({ e }) => {
+        const endDay = moment(e).diff(moment(start).startOf('days'), 'days')
+        return endDay >= 0
+      })
+      .map(({ s, e }) => {
+        const startDay = moment(s).diff(moment(start).startOf('days'), 'days')
+        if (startDay < 0) {
+          return { s: moment(start).startOf('days').format('YYYY-MM-DD'), e }
+        }
+        return { s, e }
+      }),
+  ]
+
+  newScheduler.forEach(({ s, e }) => {
     const startHour = Math.max(0, moment(s).diff(moment(start), 'hours'))
     scanLine[startHour]++
     const endHour = Math.min(hoursSummary - 1, moment(e).diff(moment(start), 'hours'))

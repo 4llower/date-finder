@@ -5,7 +5,21 @@ export const getFreeDays = ({ start, end, minTime, scheduler }: InputData) => {
   const daysSummary = moment(end).startOf('days').diff(moment(start).startOf('days'), 'days') + 1
   const scanLine = new Array(daysSummary + 1).fill(0)
   const supposedDays: number[] = []
-  const newScheduler = [...scheduler]
+
+  const newScheduler = [
+    ...scheduler
+      .filter(({ s, e }) => {
+        const endDay = moment(e).diff(moment(start).startOf('days'), 'days')
+        return endDay >= 0
+      })
+      .map(({ s, e }) => {
+        const startDay = moment(s).diff(moment(start).startOf('days'), 'days')
+        if (startDay < 0) {
+          return { s: moment(start).startOf('days').format('YYYY-MM-DD'), e }
+        }
+        return { s, e }
+      }),
+  ]
 
   newScheduler.push({
     s: moment(start).startOf('days').format('YYYY-MM-DD HH:mm:ss'),
@@ -26,8 +40,8 @@ export const getFreeDays = ({ start, end, minTime, scheduler }: InputData) => {
 
   newScheduler.forEach(({ s, e }) => {
     const startDay = moment(s).diff(moment(start).startOf('days'), 'days')
-    scanLine[startDay]++
     const endDay = moment(e).diff(moment(start).startOf('days'), 'days')
+    scanLine[Math.max(startDay, 0)]++
     scanLine[endDay + 1]--
     supposedDays.push(startDay)
     supposedDays.push(endDay)
