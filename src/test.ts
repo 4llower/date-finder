@@ -608,7 +608,10 @@ testCases.forEach(({ data, expected }, index) => {
     console.log('Expected:')
     console.log(expected)
     console.log('Your:')
-    console.log(programAnswer)
+    // console.log(programAnswer)
+    programAnswer.forEach(({ date, full }) => {
+      if (!full) console.log(date)
+    })
     console.log('Free ranges:')
     console.log(bruteForceByHour(data))
     testBroken = true

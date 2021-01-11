@@ -49,13 +49,13 @@ export const getFreeDays = ({ start, end, minTime, scheduler }: InputData) => {
 
   supposedDays.sort((a: number, b: number) => (a < b ? -1 : 1))
 
-  const result: string[] = []
+  const result: { date: string; full: boolean }[] = []
   let sum = 0
 
   for (let day = 0; day < daysSummary; ++day) {
     sum += scanLine[day]
     if (sum === 0) {
-      result.push(moment(start).add(day, 'days').format('YYYY-MM-DD'))
+      result.push({ date: moment(start).add(day, 'days').format('YYYY-MM-DD'), full: true })
     }
   }
 
@@ -95,7 +95,7 @@ export const getFreeDays = ({ start, end, minTime, scheduler }: InputData) => {
       if (supposedSum === 0) supposedRange++
       if (supposedSum > 0 && supposedRange > 0) {
         if (supposedRange >= minTime) {
-          result.push(currentDate.format('YYYY-MM-DD'))
+          result.push({ date: currentDate.format('YYYY-MM-DD'), full: supposedRange === 24 })
           return
         }
         supposedRange = 0
@@ -104,7 +104,7 @@ export const getFreeDays = ({ start, end, minTime, scheduler }: InputData) => {
 
     if (supposedRange) {
       if (supposedRange >= minTime) {
-        result.push(currentDate.format('YYYY-MM-DD'))
+        result.push({ date: currentDate.format('YYYY-MM-DD'), full: supposedRange === 24 })
         return
       }
     }
